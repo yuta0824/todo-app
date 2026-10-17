@@ -1,25 +1,26 @@
 import { resolve, sep } from "node:path";
+import { HttpError } from "./http.js";
 
-export async function serverStatic(publicDir, pathname) {
+export async function serveStatic(publicDir, pathname) {
   const root = resolve(publicDir);
 
   let decodedPath;
   try {
     decodedPath = decodeURIComponent(pathname);
-  } catch {
-    return new Response("Bad Request", { status: 400 });
+  } catch (error) {
+    throw new HttpError(400, "URLが正しくありません", { cause: error });
   }
 
   const relativePath =
     decodedPath === "/" ? "index.html" : decodedPath.slice(1);
   const filePath = resolve(root, relativePath);
   if (!filePath.startsWith(root + sep)) {
-    return new Response("Not found", { status: 404 });
+    throw new HttpError(404, "ファイルが見つかりません");
   }
 
   const file = Bun.file(filePath);
   if (!(await file.exists())) {
-    return new Response("Not found", { status: 404 });
+    throw new HttpError(404, "ファイルが見つかりません");
   }
   return new Response(file);
 }

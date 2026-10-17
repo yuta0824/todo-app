@@ -1,9 +1,8 @@
-import { serverStatic } from "./server/static.js";
+import { createApp } from "./server/app.js";
+
+const app = createApp();
 
 Bun.serve({
   port: 3000,
-  async fetch(request) {
-    const { pathname } = new URL(request.url);
-    return await serverStatic("public", pathname);
-  },
+  fetch: app,
 });
