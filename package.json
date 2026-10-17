@@ -1,0 +1,10 @@
+{
+  "name": "todo-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch server.js",
+    "start": "bun server.js",
+    "test": "bun test"
+  }
+}
