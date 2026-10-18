@@ -2,8 +2,10 @@ export function createInMemoryTodoRepository() {
   let todos = [];
   let nextId = 1;
 
-  function findAll() {
-    return todos.map((todo) => ({ ...todo }));
+  function findAll({ completed } = {}) {
+    return todos
+      .filter((todo) => completed === undefined || todo.completed === completed)
+      .map((todo) => ({ ...todo }));
   }
 
   function findById(id) {

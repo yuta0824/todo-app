@@ -42,3 +42,10 @@ export function parseTodoChange(body) {
   }
   return { completed: parseCompleted(body.completed) };
 }
+
+export function parseCompletedQuery(value) {
+  if (value === null) return undefined;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  throw new HttpError(400, "completed は true または false で指定してください");
+}

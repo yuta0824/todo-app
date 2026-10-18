@@ -5,7 +5,11 @@ import {
   readJsonBody,
 } from "./http.js";
 import { serveStatic } from "./static.js";
-import { parseNewTodo, parseTodoChange } from "./todoValidation.js";
+import {
+  parseCompletedQuery,
+  parseNewTodo,
+  parseTodoChange,
+} from "./todoValidation.js";
 
 const TODO_PATH = /^\/api\/todos\/(\d+)$/;
 
@@ -19,8 +23,11 @@ export function createApp({ todoRepository, publicDir = "public" } = {}) {
 
   async function handleTodos(request) {
     switch (request.method) {
-      case "GET":
-        return Response.json(todoRepository.findAll());
+      case "GET": {
+        const { searchParams } = new URL(request.url);
+        const completed = parseCompletedQuery(searchParams.get("completed"));
+        return Response.json(todoRepository.findAll({ completed }));
+      }
       case "POST": {
         const body = await readJsonBody(request);
         const todo = todoRepository.create(parseNewTodo(body));
