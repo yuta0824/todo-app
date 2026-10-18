@@ -16,3 +16,13 @@ export function methodNotAllowed(allowedMethods) {
     headers: { Allow: allowedMethods.join(", ") },
   });
 }
+
+export async function readJsonBody(request) {
+  try {
+    return await request.json();
+  } catch (error) {
+    throw new HttpError(400, "リクエストボディが正しい JSON ではありません", {
+      cause: error,
+    });
+  }
+}
