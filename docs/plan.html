@@ -426,7 +426,7 @@ label.done:has(input:checked) { border-color: var(--ok); color: var(--ok); backg
   background-image: repeating-linear-gradient(90deg, transparent 0 calc(50% / var(--n) - 1px), var(--line) calc(50% / var(--n) - 1px) calc(50% / var(--n) + 1px), transparent calc(50% / var(--n) + 1px) calc(100% / var(--n)));
 }
 .seq > * { position: relative; }
-.seq > .lane { margin: 0 4px 8px; padding: 7px 6px; text-align: center; font-weight: 700; font-size: .86rem; line-height: 1.35; border: 1.5px solid var(--k, var(--line)); border-radius: 8px; background: color-mix(in srgb, var(--k, var(--line)) 12%, var(--fig-bg)); }
+.seq > .lane { overflow-wrap: anywhere; margin: 0 4px 8px; padding: 7px 6px; text-align: center; font-weight: 700; font-size: .86rem; line-height: 1.35; border: 1.5px solid var(--k, var(--line)); border-radius: 8px; background: color-mix(in srgb, var(--k, var(--line)) 12%, var(--fig-bg)); }
 .seq > .lane small { display: block; font: 400 .72rem/1.4 var(--f-mono); color: var(--muted); }
 .seq > .msg { margin-inline: calc(50% / var(--span, 1)); padding: 3px 4px 15px; text-align: center; font-size: .8rem; line-height: 1.4; }
 .seq > .msg > * { background: var(--fig-bg); padding: 0 4px; border-radius: 3px; }
@@ -559,7 +559,10 @@ pre.tree { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--
   <div class="prog"><div class="prog-bar"><span data-prog-fill></span></div><span class="prog-text" data-prog-text>0 / 14 章 完了</span></div>
   <ol class="toc">
     <li><span class="phase-name">はじめに</span>
-      <ol><li><a href="#intro"><span class="n">0</span><span class="t">この教材について</span><span></span></a></li></ol>
+      <ol>
+        <li><a href="#intro"><span class="n">―</span><span class="t">この教材について</span><span></span></a></li>
+        <li><a href="#ch0" data-ch="0"><span class="n">0</span><span class="t">いまのフロントを読む</span><span class="chk"></span></a></li>
+      </ol>
     </li>
     <li><span class="phase-name">土台をつくる</span>
       <ol>
@@ -678,6 +681,7 @@ pre.tree { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--
       </ol>
     </div>
   </nav>
+  <p>手を動かす前に、<a class="ref" href="#ch0">第0章</a> でいまのフロントエンドを読んでおくと、各章が全体のどこを作っているのかをつかみやすくなります。</p>
 
   <h4>自分の手で書く 5 つのこと</h4>
   <p>普段は Rails や Next.js が隠してくれている部分を、ライブラリなしで一度自分の手で書きます。</p>
@@ -794,6 +798,211 @@ pre.tree { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--
       <li>自分で試したこと</li>
     </ul>
   </div>
+</section>
+
+<section class="chapter" id="ch0" aria-labelledby="ch0-t">
+  <p class="ch-num">第0章</p>
+  <h2 id="ch0-t">始める前に：いまの Todo アプリを読み、行き先をつかむ</h2>
+  <p class="ch-lede">コードは書きません。js-primer で作った Todo アプリが、いま<strong>どの部品で、Todo をどこに持っているか</strong>を確かめます。そのうえで、この教材を進めるとその役目がどこへ移っていくのかを、先にざっくりつかんでおく章です。</p>
+  <div class="ch-meta">
+    <div class="goals">
+      <p class="label">この章のゴール</p>
+      <ul>
+        <li>いまのフロントエンドの各ファイルが、何を担当しているかを説明できる</li>
+        <li>いまの Todo が「どこに」「いつまで」あるのかを説明できる</li>
+        <li>この教材を終えたとき、その役目がどこへ移っているかをざっくり言える</li>
+      </ul>
+    </div>
+    <div class="files">
+      <p class="label">触るファイル</p>
+      <ul>
+        <li class="none">なし（public/ のコードを読むだけ）</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="part">いまのフロントエンド</h3>
+
+  <h4>部品と役目</h4>
+  <p>js-primer の Todo アプリは、<strong>Model（データ）</strong>と <strong>View（表示）</strong>を分けて、その間を <strong>App</strong> がつなぐ形で作りました。<code>public/</code> を開いて、次の図と見比べてください。</p>
+  <figure class="fig">
+<pre class="tree">public/
+├── index.html                <span class="t-dim"># 画面の骨組み（入力フォーム・一覧の入れ物・件数）</span>
+├── index.js                  <span class="t-dim"># 入口：ページを開いたら App を mount する</span>
+└── src/
+    ├── App.js                <span class="t-dim"># 司令塔：操作を受けて Model に頼み、変化したら View で描き直す</span>
+    ├── EventEmitter.js       <span class="t-dim"># 「変わったよ」を知らせる仕組み</span>
+    ├── model/
+    │   ├── TodoListModel.js  <span class="t-dim"># Todo 一覧の持ち主（#items 配列）</span>
+    │   └── TodoItemModel.js  <span class="t-dim"># Todo 1 件の形。id を todoIdx++ で振る</span>
+    └── view/
+        ├── TodoListView.js   <span class="t-dim"># 一覧を &lt;ul&gt; にする</span>
+        ├── TodoItemView.js   <span class="t-dim"># 1 件を &lt;li&gt; にして、クリックをコールバックで知らせる</span>
+        └── html-util.js      <span class="t-dim"># element タグ関数（エスケープ）と render</span></pre>
+    <figcaption>データを持つのは <b>Model</b>、画面を作るのは <b>View</b>、両者をつなぐのが <b>App</b> です。View は Model を直接さわらず、Model も画面のことを知りません。</figcaption>
+  </figure>
+
+  <p>それぞれの役目と、この教材を進めたあと（第8章のあと）にどうなるかを並べます。</p>
+  <div class="tbl wrap">
+    <table>
+      <thead><tr><th>ファイル</th><th>いまの役目</th><th>第8章のあと</th></tr></thead>
+      <tbody>
+        <tr><td><code>index.html</code></td><td>画面の骨組み</td><td>エラーを出す場所（<code>#js-error</code>）が 1 行増える</td></tr>
+        <tr><td><code>index.js</code></td><td>ページを開いたら <code>app.mount()</code>、離れるときに <code>app.unmount()</code></td><td>変わらない</td></tr>
+        <tr><td><code>App.js</code></td><td>フォームの送信やクリックを受けて Model に頼む。Model が変わったら View で描き直す</td><td>最初にサーバーから一覧を読み込む。失敗したらエラーを表示する。入力欄を空にするのは、追加に成功してから</td></tr>
+        <tr><td><code>TodoListModel.js</code></td><td><strong>Todo 一覧の持ち主</strong>。配列 <code>#items</code> を直接書き換えて、<code>change</code> を知らせる</td><td>API を呼び、<strong>サーバーが成功と言ってから</strong>配列を書き換える。配列は「サーバーにある本物の写し」になる</td></tr>
+        <tr><td><code>TodoItemModel.js</code></td><td>Todo 1 件の形。<code>id</code> を自分で振る（<code>todoIdx++</code>）</td><td><code>id</code> はサーバーから受け取る（<code>todoIdx</code> が消える）</td></tr>
+        <tr><td><code>EventEmitter.js</code></td><td><code>change</code> を知らせる</td><td>変わらない</td></tr>
+        <tr><td><code>view/</code></td><td>Todo を HTML にする。クリックされたらコールバックで知らせる</td><td>変わらない</td></tr>
+        <tr><td><code>api/todoApi.js</code></td><td>（まだない）</td><td>新しく作る。<code>fetch</code> でサーバーと話す係</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Todo を 1 件追加すると、何が起きているか</h4>
+  <p>フォームに「牛乳を買う」と入れて Enter を押したときの流れです。</p>
+  <figure class="fig">
+    <p class="fig-t">いま</p>
+    <div class="seq">
+      <div class="lane" data-k="front">画面<small>App · View</small></div>
+      <div class="lane" data-k="front">TodoListModel<small>#items（配列）</small></div>
+      <div class="act" data-at="1">Enter → <code>new TodoItemModel()</code><br>id は <code>todoIdx++</code></div>
+      <div class="msg" data-from="1" data-to="2"><b>addTodo(todoItem)</b></div>
+      <div class="act" data-at="2"><code>#items.push()</code> → <code>change</code></div>
+      <div class="msg" data-from="2" data-to="1"><span>描き直す</span></div>
+    </div>
+    <figcaption>すべてが<b>ブラウザのタブの中</b>で完結しています。配列を書き換えるだけなので、失敗することもほとんどありません。</figcaption>
+  </figure>
+  <p>ポイントは、App が画面を直接書き換えていないことです。<strong>操作 → Model を変える → <code>change</code> → 描き直す</strong>という、一方向の流れになっています。この形のおかげで、第8章では Model の中身を差し替えるだけで済みます。</p>
+
+  <h4>いまの Todo は、どこに・いつまである？</h4>
+  <p>Todo の本体は、<code>TodoListModel</code> の <code>#items</code> という<strong>JavaScript の変数</strong>です。変数はブラウザのタブのメモリにしかないので、次のようになります。</p>
+  <ul>
+    <li><strong>リロードすると消える</strong>：スクリプトが最初から実行され、<code>new TodoListModel()</code> が空の配列から始まる</li>
+    <li><strong>id も 0 に戻る</strong>：<code>todoIdx</code> もモジュールの変数なので、リロードのたびに 0 から振り直す</li>
+    <li><strong>ほかのタブやスマホからは見えない</strong>：タブごとに別々の配列を持っている</li>
+  </ul>
+  <p>この教材でやることを一言でいうと、<strong>Todo の本体を、ブラウザの変数からサーバーの DB へ引っ越すこと</strong>です。</p>
+
+  <h3 class="part">これから、どう変わるか</h3>
+
+  <h4>第8章のあと：同じ操作が、サーバーを通るようになる</h4>
+  <figure class="fig">
+    <p class="fig-t">第8章のあと</p>
+    <div class="seq">
+      <div class="lane" data-k="front">画面<small>App · View</small></div>
+      <div class="lane" data-k="front">Model<small>+ todoApi</small></div>
+      <div class="lane" data-k="server">サーバー<small>app.js → リポジトリ</small></div>
+      <div class="lane" data-k="data">DB<small>SQLite</small></div>
+      <div class="act" data-at="1">Enter</div>
+      <div class="msg" data-from="1" data-to="2"><b>addTodo({ title })</b></div>
+      <div class="msg" data-from="2" data-to="3"><b>POST /api/todos</b> <small>{"title":"牛乳を買う"}</small></div>
+      <div class="act" data-at="3">入力チェック<br>（NG なら 400）</div>
+      <div class="msg" data-from="3" data-to="4"><b>INSERT</b></div>
+      <div class="msg" data-from="4" data-to="3"><span>id = 1 を振って保存</span></div>
+      <div class="msg ok" data-from="3" data-to="2"><b>201</b> <small>{"id":1, …}</small></div>
+      <div class="act" data-at="2"><code>#items.push()</code> → <code>change</code></div>
+      <div class="msg" data-from="2" data-to="1"><span>描き直す</span></div>
+    </div>
+    <figcaption>Model は <code>TodoListModel</code>、todoApi は第8章で足す <code>api/todoApi.js</code> です。画面の側と、サーバーから戻ってきたあとの流れ（<code>push</code> → <code>change</code> → 描き直す）は、いまと同じです。<b>変わるのは、Model の先にサーバーと DB が挟まること</b>だけです。</figcaption>
+  </figure>
+
+  <h4>Todo の持ち方の違い</h4>
+  <div class="tbl wrap">
+    <table>
+      <thead><tr><th></th><th>いま（js-primer）</th><th>この教材を終えたとき</th></tr></thead>
+      <tbody>
+        <tr><td>本体の置き場所</td><td>ブラウザの変数（<code>#items</code>）</td><td>SQLite のファイル（<code>todo.sqlite</code>）</td></tr>
+        <tr><td>残る期間</td><td>リロードで消える</td><td>ブラウザを閉じても、サーバーを再起動しても残る</td></tr>
+        <tr><td>id を振るのは</td><td>ブラウザ（<code>todoIdx++</code>。0 から）</td><td>サーバー（1 から。消した番号は使い回さない）</td></tr>
+        <tr><td>入力チェック</td><td>空文字を弾くだけ（<code>App.js</code>）</td><td>サーバーでもチェックする（文字列か・空でないか・100 文字以内か）</td></tr>
+        <tr><td>見える範囲</td><td>そのタブだけ</td><td>同じサーバーにつなぐブラウザすべて（第13章からはユーザーごと）</td></tr>
+        <tr><td>失敗すること</td><td>ほぼない</td><td>通信やサーバーのエラーがありうる。そのときは画面にエラーを出す</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>フロントエンドの空チェックは、使い勝手のために残します。ただ、curl で API を直接叩けば素通りできるので、<strong>守りの本番はサーバー側</strong>です（<a class="ref" href="#ch5">第5章</a> <a class="ref" href="#ch9">第9章</a>）。</p>
+
+  <h4>同じ操作が、層ごとに何と呼ばれるか</h4>
+  <p>完成すると、1 つの操作が次のように層をまたいで伝わります。表を横に読むと、<strong>いまの <code>TodoListModel</code> のメソッドが、サーバーのリポジトリまで一本の線でつながる</strong>のが分かります。</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>操作</th><th>いまの Model</th><th>todoApi（第8章）</th><th>HTTP（第4章）</th><th>リポジトリ（第5・7章）</th></tr></thead>
+      <tbody>
+        <tr><td>一覧</td><td>（なし。毎回空から始まる）</td><td><code>fetchAll()</code></td><td><code>GET /api/todos</code></td><td><code>findAll()</code></td></tr>
+        <tr><td>追加</td><td><code>addTodo()</code></td><td><code>create()</code></td><td><code>POST /api/todos</code></td><td><code>create()</code></td></tr>
+        <tr><td>完了の切り替え</td><td><code>updateTodo()</code></td><td><code>update()</code></td><td><code>PATCH /api/todos/:id</code></td><td><code>update()</code></td></tr>
+        <tr><td>削除</td><td><code>deleteTodo()</code></td><td><code>remove()</code></td><td><code>DELETE /api/todos/:id</code></td><td><code>remove()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>「HTTP」と「リポジトリ」の間で振り分けを担当するのが、サーバーの <code>app.js</code>（<code>handleTodos</code> / <code>handleTodo</code>）です。一覧を読み込む <code>load()</code> は、第8章で <code>TodoListModel</code> に足します。</p>
+
+  <h4>章ごとに、フロントエンドから見ると</h4>
+  <div class="tbl wrap">
+    <table>
+      <thead><tr><th>章</th><th>フロントエンドから見て起きること</th><th>Todo の本体</th></tr></thead>
+      <tbody>
+        <tr><td>第1章</td><td><code>public/</code> へ移すだけ。動きは同じ</td><td>ブラウザ</td></tr>
+        <tr><td>第2–3章</td><td>自分のサーバーが立ち、第3章からは <code>index.html</code> や <code>src/*.js</code> を配るようになる。動きは同じ</td><td>ブラウザ</td></tr>
+        <tr><td>第4–7章</td><td>サーバーに <code>/api/todos</code> ができ、保存先がメモリ → SQLite と育つ。<strong>ただし、画面はまだ API を使っていない</strong>（curl で触る）</td><td>ブラウザとサーバーに<strong>別々に</strong>ある</td></tr>
+        <tr><td>第8章</td><td><code>todoApi.js</code> を足し、Model が API を呼ぶようになる。<strong>リロードしても Todo が残る</strong></td><td>SQLite に一本化</td></tr>
+        <tr><td>第9–12章</td><td>エラー処理・テスト・セキュリティ・バックアップ。見た目はほぼ同じで、壊れにくくなる</td><td>SQLite</td></tr>
+        <tr><td>第13章</td><td>ログイン画面が増え、自分の Todo だけが見える</td><td>SQLite（ユーザーごと）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note info">
+    <p class="note-t">第4〜7章は、Todo が 2 か所にある</p>
+    <p>この間、ブラウザで追加した Todo は <code>#items</code> に入るだけで、API には届きません。逆に、curl で <code>POST /api/todos</code> した Todo も画面には出ません。<strong>バグではなく、まだつないでいないだけ</strong>です。2 つが 1 つになるのが <a class="ref" href="#ch8">第8章</a> です。</p>
+  </div>
+
+  <h4>変わらないもの</h4>
+  <p>第8章でも、<strong>View（<code>TodoListView</code>・<code>TodoItemView</code>・<code>html-util.js</code>）と <code>EventEmitter</code> は 1 行も変えません</strong>。View は「受け取った Todo を描く」「クリックされたらコールバックで知らせる」ことしかしておらず、Todo がどこから来たかを知らないからです。</p>
+  <p>この「相手の中身を知らずに、決めた約束だけで呼ぶ」形は、この教材の中で何度も出てきます。約束が同じなら、相手の中身を入れ替えても、呼ぶ側は変えなくて済みます。</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>呼ぶ側</th><th>呼ばれる側</th><th>約束</th><th>中身が入れ替わるとき</th></tr></thead>
+      <tbody>
+        <tr><td>View</td><td>App</td><td><code>onUpdateTodo</code> / <code>onDeleteTodo</code></td><td>―</td></tr>
+        <tr><td>App</td><td><code>TodoListModel</code></td><td><code>addTodo</code> / <code>updateTodo</code> / <code>deleteTodo</code></td><td>第8章：配列 → API</td></tr>
+        <tr><td><code>app.js</code></td><td>リポジトリ</td><td><code>findAll</code> / <code>create</code> / <code>update</code> / <code>remove</code> …</td><td>第7章：メモリ → SQLite</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="part">理解度チェック</h3>
+  <div class="quiz">
+    <details class="qa">
+      <summary><span class="qn">Q1</span><span>いまのアプリで、ページをリロードすると Todo が消えるのはなぜですか？</span></summary>
+      <div class="a">
+        <p>Todo の本体が <code>TodoListModel</code> の <code>#items</code> という JavaScript の変数で、ブラウザのタブのメモリにしかないからです。リロードするとスクリプトが最初から実行され、<code>new TodoListModel()</code> が空の配列から始まります。<code>todoIdx</code> も 0 に戻ります。</p>
+      </div>
+    </details>
+    <details class="qa">
+      <summary><span class="qn">Q2</span><span>完成後、id を振るのがブラウザではなくサーバーになるのはなぜですか？</span></summary>
+      <div class="a">
+        <p>ブラウザごとに 0 から振ると、別のタブや別の端末から追加された Todo と id が重なるからです。Todo を保存している場所（DB）は 1 か所なので、そこで振れば重なりません。リロードしても、続きの番号から振れます。</p>
+      </div>
+    </details>
+    <details class="qa">
+      <summary><span class="qn">Q3</span><span>第5章を終えた時点で、ブラウザで追加した Todo を <code>curl http://localhost:3000/api/todos</code> で取れますか？</span></summary>
+      <div class="a">
+        <p>取れません。画面（<code>TodoListModel</code>）はまだ API を呼んでいないので、追加した Todo はブラウザの <code>#items</code> に入るだけです。ブラウザの Todo とサーバーの Todo がつながるのは第8章です。</p>
+      </div>
+    </details>
+  </div>
+
+  <aside class="fw">
+    <p class="fw-head"><span class="fw-r">Rails</span><span class="fw-n">Next.js</span>だと</p>
+    <ul>
+      <li>React で <code>useState</code> だけで作った Todo は、いまの js-primer と同じです。状態がブラウザの変数にしかないので、リロードで消えます</li>
+      <li>TanStack Query（React Query）などは、<strong>サーバーにある本物の写しをブラウザで持つ</strong>ための道具です。第8章の <code>#items</code> が、まさにその「写し」にあたります</li>
+      <li>Rails（Hotwire）は、最初から本物がサーバーの DB にあり、ブラウザは返ってきた HTML を表示します。この教材は、ブラウザ側に Model を残したまま、本物だけをサーバーへ移す形です</li>
+    </ul>
+  </aside>
+
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="0"> 第0章を読んだ</label></div>
 </section>
 
 <section class="chapter" id="ch1" aria-labelledby="ch1-t">
@@ -6664,7 +6873,7 @@ kill &lt;PID&gt;           # 止める</code></pre></div>
     if (where) {
       var n = link.querySelector(".n").textContent.trim();
       var t = link.querySelector(".t").textContent.trim();
-      where.textContent = /^\d+$/.test(n) && n !== "0" ? "第" + n + "章 " + t : t;
+      where.textContent = /^\d+$/.test(n) ? "第" + n + "章 " + t : t;
     }
     if (window.innerWidth > 960) {
       var r = link.getBoundingClientRect(), sr = side.getBoundingClientRect();
